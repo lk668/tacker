@@ -1,0 +1,106 @@
+# Sample ``local.conf`` that builds a devstack with neutron LBaaS Version 2
+
+# NOTE: Copy this file to the root DevStack directory for it to work properly.
+
+# ``local.conf`` is a user-maintained settings file that is sourced from ``stackrc``.
+# This gives it the ability to override any variables set in ``stackrc``.
+# Also, most of the settings in ``stack.sh`` are written to only be set if no
+# value has already been set; this lets ``local.conf`` effectively override the
+# default values.
+
+# The ``localrc`` section replaces the old ``localrc`` configuration file.
+# Note that if ``localrc`` is present it will be used in favor of this section.
+
+[[local|localrc]]
+
+# The name of the RECLONE environment variable is a bit misleading.  It doesn't actually
+# reclone repositories, rather it uses git fetch to make sure the repos are current.
+
+RECLONE=True
+
+# Load the external LBaaS plugin.
+enable_plugin neutron https://git.openstack.org/openstack/neutron
+enable_plugin neutron-client https://git.openstack.org/openstack/python-neutronclient
+enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
+enable_plugin octavia https://git.openstack.org/openstack/octavia
+enable_plugin barbican https://git.openstack.org/openstack/barbican
+
+DATABASE_PASSWORD=1234
+ADMIN_PASSWORD=1234
+SERVICE_PASSWORD=1234
+SERVICE_TOKEN=1234
+RABBIT_PASSWORD=1234
+
+# Enable Logging
+LOGFILE=$DEST/logs/stack.sh.log
+VERBOSE=True
+LOG_COLOR=True
+SCREEN_LOGDIR=$DEST/logs
+
+# Pre-requisites
+enable_service rabbit
+enable_service mysql
+enable_service key
+
+# Horizon
+enable_service horizon
+
+# Nova
+enable_service n-api
+enable_service n-crt
+enable_service n-cpu
+enable_service n-cond
+enable_service n-sch
+
+# Glance
+enable_service g-api
+enable_service g-reg
+
+# CEILOMETER
+enable_plugin ceilometer https://git.openstack.org/openstack/ceilometer
+enable_service ceilometer-anotification ceilometer-acompute ceilometer-acentral ceilometer-collector ceilometer-api 
+# disable_service ceilometer-alarm-notifier,ceilometer-alarm-evaluator
+CEILOMETER_BACKEND=mysql
+
+# AODH
+enable_plugin aodh https://git.openstack.org/openstack/aodh
+enable_service aodh-evaluator aodh-notifier aodh-api
+
+# Senlin
+enable_plugin senlin https://git.openstack.org/openstack/senlin
+enable_plugin python-senlinclient https://git.openstack.org/openstack/python-senlinclient
+# enable_plugin python-openstacksdk https://git.openstack.org/openstack/python-openstacksdk
+enable_service sl-api sl-eng
+
+# heat
+enable_plugin heat https://git.openstack.org/openstack/heat
+enable_service h-api
+enable_service h-api-cfn
+enable_service h-api-cw
+enable_service h-eng
+enable_service heat
+
+# Neutron
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+enable_service q-meta
+
+# Cinder
+enable_service c-api
+enable_service c-vol
+enable_service c-sch
+
+# LBaaS V2 and Octavia
+enable_service q-lbaasv2
+enable_service octavia
+enable_service o-cw
+enable_service o-hm
+enable_service o-hk
+enable_service o-api
+
+# LBaas V1
+# enable_service q-lbaas
+# enable_service neutron
+# disable_service n-net
